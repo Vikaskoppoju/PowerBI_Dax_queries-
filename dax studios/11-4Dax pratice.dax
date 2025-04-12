@@ -1,0 +1,127 @@
+﻿//1. List of active cabs
+
+EVALUATE
+
+FILTER(Cabs,Cabs[Active]="YES")
+
+//2. Count Of active cabs by licence type
+
+EVALUATE
+
+SUMMARIZECOLUMNS(
+
+'Cabs'[LicenseType],
+
+"ActiveCount", CALCULATE(COUNTROWS('Cabs'),'Cabs'[Active]="YES")
+
+)
+
+//3. Cabs Accessible for wheelchair -- Data Inconsistancy
+
+EVALUATE
+
+FILTER('Cabs',NOT ISBLANK('Cabs'[WheelchairAccessible]))
+
+// other case
+
+EVALUATE
+
+FILTER('Cabs','Cabs'[WheelchairAccessible]="Wav")
+
+//4. Cabs by year of vehicle
+
+EVALUATE
+
+SUMMARIZE('Cabs',Cabs[VehicleYear],"CabsCount",COUNTROWS('Cabs'))
+
+//5. Count of Websites Provided
+
+EVALUATE
+
+ROW("CabswithWebsite",COUNTROWS(FILTER('Cabs',NOT ISBLANK('Cabs'[Website]))))
+
+//6. Vehicle Years - Min,Max, Avg
+
+EVALUATE
+SUMMARIZECOLUMNS(
+	"MinYear",MIN('Cabs'[VehicleYear]),
+	"MaxYear",MAX('Cabs'[VehicleYear]),
+	"AVGYear",AVERAGE('Cabs'[VehicleYear]))
+	
+
+//7. Cab count Per Address
+
+EVALUATE
+SUMMARIZECOLUMNS('Cabs'[Address],"Count of Cabs",CALCULATE(COUNTROWS('Cabs')))
+
+// or
+
+EVALUATE
+SUMMARIZE('Cabs','Cabs'[Address],"Cabcount",COUNTROWS('Cabs'))
+
+
+//8.  
+
+EVALUATE 
+FILTER('Cabs', ISBLANK('Cabs'[VehicleType]))
+
+//9. Top 5 address by Number of Cabs
+
+EVALUATE
+TOPN(
+5,
+SUMMARIZE('Cabs',Cabs[Address],"CabCount",COUNTROWS('Cabs')),
+[Cabcount],desc
+)
+
+//10. ALLEXCEPT
+//DUPLICATES IN VINS
+
+EVALUATE
+FILTER(
+	ADDCOLUMNS(
+	'Cabs',
+	"Count",
+	CALCULATE(COUNTROWS('Cabs'),ALLEXCEPT('Cabs','Cabs'[VehicleVinNumber])
+	),
+	[Count]>1
+	
+	)
+	
+	
+	
+// Multilevel Grouping & Filtering
+ //11. Multiple Columns - Cabs by licence type and vehicleyear
+ 
+ EVALUATE 
+ SUMMARIZE(
+ 	Cabs,
+ 	Cabs[LicenseType],
+ 	Cabs[VehicleYear],
+ 	"Cabcount",COUNTROWS(Cabs))
+ 	
+ 	
+// Advanced Grouping Filters and Metrics:
+//12. Cabs with same phone numbers:
+
+EVALUATE
+FILTER(
+	ADDCOLUMNS(
+	'Cabs',
+	"Count",
+	CALCULATE(COUNTROWS(('Cabs'). ALLEXCEPT('Cabs','Cabs'[TelephoneNumber]))),
+	[Count]>1)
+
+
+//13. Vechcile Registered Between 2012 & 2016
+
+EVALUATE 
+FILTER('Cabs','Cabs'[VehicleYear] >= 2012 && 'Cabs'[VehicleYear] <= 2016)
+
+//14. Vehicle  year by vehcile licence type average
+
+EVALUATE
+SUMMARIZECOLUMNS('Cabs'[LicenseType],
+	"Avgyear",AVERAGE('Cabs'[VehicleYear]))
+	
+//15. 

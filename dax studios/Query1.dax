@@ -1,0 +1,16 @@
+﻿//1. How many active vehicles are there?
+
+EVALUATE
+ROW("ActiveVehicles",COUNTROWS(FILTER('Cabs','Cabs'[Active]="YES")))
+
+//2. Count of vehicles by License Type
+EVALUATE
+SUMMARIZE(
+	'Cabs',
+	'Cabs'[LicenseType],
+	"Countof Vehicles",COUNTROWS('Cabs'))
+	
+//3. Total distinct vehicle years in the dataset
+
+EVALUATE
+ROW("Distinct Year Count", DISTINCTCOUNT('Cabs'[VehicleYear]))

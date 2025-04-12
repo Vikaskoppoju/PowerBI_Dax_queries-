@@ -1,0 +1,22 @@
+﻿// EVALUATE EMployees with Salary > 50000
+EVALUATE
+FILTER(
+     EmployeeData,
+     EmployeeData[Salary] >= 50000
+)
+
+// TOP 10 Records
+EVALUATE
+TOPN(10,EmployeeData)
+
+//
+
+EVALUATE
+ ADDCOLUMNS( VALUES('companies'[State]),"Average Profit(Filtered)",AVERAGEX(KEEPFILTERS('companies'),'companies'[Profit])
+ )
+ 
+ EVALUATE
+ SUMMARIZE('companies','companies'[State],"Average",CALCULATE(AVERAGE(companies[Profit])))
+ 
+ 
+ 
