@@ -124,4 +124,139 @@ EVALUATE
 SUMMARIZECOLUMNS('Cabs'[LicenseType],
 	"Avgyear",AVERAGE('Cabs'[VehicleYear]))
 	
-//15. 
+//15. Address Contains Zip Code 10463
+// Search Function
+EVALUATE
+FILTER('Cabs',SEARCH("10463",'Cabs'[Address],1,0) > 0)
+
+//16. Rank Cabs by Vehicle year (desc)
+EVALUATE
+ADDCOLUMNS(
+	'Cabs',
+	"yearRank", RANKX(All('Cabs'), 'Cabs'[VehicleYear], ,DESC)
+	)
+	
+//17. identity can entries without a Cab number
+EVALUATE
+FILTER('Cabs', ISBLANK('Cabs'[CabNumber]))
+
+//18. Count of Cabs where owner must drive
+EVALUATE CALCULATETABLE(
+FILTER(
+	'Cabs',
+	'Cabs'[LicenseType]="OWNER MUST DRIVE"),
+	ALL('Cabs'))
+	
+//19. Group Duplicates VIN Numbers:
+EVALUATE
+FILTER(
+ADDCOLUMNS(
+	'Cabs',
+	"VinCount",CALCULATE(COUNTROWS('Cabs'), ALLEXCEPT('Cabs','Cabs'[VehicleVinNumber]))),
+	[VinCount]> 1)
+	
+	
+//20. Grouping website domains & count
+
+EVALUATE
+SUMMARIZE(
+ADDCOLUMNS(
+	'Cabs',
+	"Domain",
+	IF(
+
+		ISBLANK('Cabs'[Website]) || FIND(".", 'Cabs'[Website], 1, 0) =0,// || is piping method in search or find
+		"N/A",
+		RIGHT('Cabs'[Website], LEN('Cabs'[Website]) - FIND(".", 'Cabs'[Website], 1)))
+	),
+	[Domain],
+	"Count", COUNTX('Cabs', [Domain]))
+	
+	
+//21. Compare Active  vs Non- Active
+EVALUATE
+SUMMARIZE(
+	'Cabs',
+	'Cabs'[Active],
+	"Total",COUNTROWS('Cabs'))
+	
+//22. Finding Duplicates Phone Numbers
+EVALUATE
+FILTER(
+ADDCOLUMNS(
+	'Cabs',
+	"Phone Count",CALCULATE(COUNTROWS('Cabs'),ALLEXCEPT('Cabs','Cabs'[TelephoneNumber]))),
+	[Phone Count]>1)
+	
+	
+//23. Top5 VIN PREFIXES by Count	
+EVALUATE
+TOPN(
+	5,
+	SUMMARIZE(
+	ADDCOLUMNS ('Cabs', "VINPrefix", LEFT('Cabs' [VehicleVinNumber], 3)),
+	[VINPrefix],
+	"Count", COUNTROWS ( 'Cabs' )
+	),
+
+	[Count],
+	DESC
+
+)
+
+
+//24 . Vehicle by address Frequency
+EVALUATE
+SUMMARIZE(
+	'Cabs',
+	'Cabs'[Address],
+	"CabCount",COUNTROWS('Cabs'))
+	
+//25. Count the Vehicle per year for owner must drive only
+EVALUATE
+SUMMARIZE(
+FILTER(
+	'Cabs','Cabs'[LicenseType]="OWNER MUST DRIVE"),
+	'Cabs'[VehicleYear],
+	"Count",COUNTROWS('Cabs')
+	)
+	
+	
+//26. Top 10 name by cabcount
+
+EVALUATE
+TOPN(
+5,
+SUMMARIZE(
+	'Cabs',
+	'Cabs'[Name],
+	"Count",COUNTROWS('Cabs')),
+	[Count], DESC
+	)
+	
+// 27. All Cabs with year = Current Year
+EVALUATE
+FILTER(
+'Cabs',
+'Cabs'[VehicleYear]= YEAR(TODAY()))
+
+//28. Count of patients by gender
+EVALUATE
+SUMMARIZECOLUMNS('health'[Gender],"Count",COUNTROWS('health'))
+
+//29. Count of patients by blood type:
+EVALUATE
+
+SUMMARIZECOLUMNS(health[Blood Type],"PatientsCount",COUNTROWS('health'))
+
+//30. Average billing by mediacl condition
+EVALUATE
+ADDCOLUMNS(VALUES(health[Medical Condition]),
+"Avg_billing",AVERAGE(health[Billing Amount]))
+
+// or
+EVALUATE
+SUMMARIZE(
+	health,
+	health[Medical Condition],
+	"Avg_billing",AVERAGE(health[Billing Amount]))
