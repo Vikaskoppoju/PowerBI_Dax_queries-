@@ -260,3 +260,83 @@ SUMMARIZE(
 	health,
 	health[Medical Condition],
 	"Avg_billing",AVERAGE(health[Billing Amount]))
+	
+	
+//31. Total billing amount by insurance provider
+EVALUATE
+ADDCOLUMNS(VALUES(health[Insurance Provider]),"Total Bill",SUM(health[Billing Amount]))
+
+//32. Average age of patients by gender
+EVALUATE
+SUMMARIZECOLUMNS(health[Gender],"Avg_age",AVERAGE(health[Age]))
+
+//33. Patient count by date of admission
+EVALUATE
+ADDCOLUMNS(VALUES(health[Date of Admission]),"Patients",CALCULATE(COUNTROWS(health)))
+
+
+//34. count of discharge by date
+
+
+EVALUATE
+ADDCOLUMNS(VALUES('health'[Discharge Date]),
+"OUT_Patients",CALCULATE(COUNTROWS('health')))
+
+//35. Average Stay Duration by doctor
+
+EVALUATE
+ADDCOLUMNS(SUMMARIZE(health,health[Doctor]),"Avg_stay_duration",
+	AVERAGEX(health,DATEDIFF(health[Date of Admission],health[Discharge Date],DAY))
+	)
+	
+//36. Average Stay Duration by PAtients
+EVALUATE
+ADDCOLUMNS(SUMMARIZE(health,health[Name]),"Avg_stay_duration",
+	AVERAGEX(health,DATEDIFF(health[Date of Admission],health[Discharge Date],DAY))
+	)
+	
+	
+//37. Number of admissions in 2020 by hospitals
+EVALUATE
+ADDCOLUMNS(VALUES(health[Hospital]),"Admissions in 2020",CALCULATE(COUNTROWS(health),YEAR(health[Date of Admission])=2020))
+
+//38. Patient Count in 2023 by doctor
+EVALUATE
+ADDCOLUMNS(VALUES(health[Doctor]),
+"2023_Patients_By_doctor",CALCULATE(COUNTROWS(health),YEAR(health[Date of Admission]=2023)))
+
+//39. patient count per medication
+
+EVALUATE
+ADDCOLUMNS(VALUES(health[Medication]),
+"Patients_count",CALCULATE(COUNTROWS(health)))
+
+// 40 . Most common medical condition
+EVALUATE
+TOPN(
+1,
+SUMMARIZE(health,health[Medical Condition],"PAtients_Count",COUNTROWS(health)),[PAtients_Count],DESC)
+
+//41. average age for mediacl condition
+EVALUATE
+SUMMARIZECOLUMNS(health[Medical Condition],"Average_age",AVERAGE(health[Age]))
+
+// or
+
+EVALUATE
+ADDCOLUMNS(VALUES(health[Medical Condition]),"Average age",AVERAGE((health[Age])))
+
+//42.patients count  by doctor for diabetes
+EVALUATE
+ADDCOLUMNS(VALUES(health[Doctor]),"Disbetes_Patients",CALCULATE(COUNTROWS(health),health[Medical Condition]="Diabetes"))
+
+//43. Average billin per admission type
+EVALUATE
+ADDCOLUMNS(VALUES(health[Admission Type]),
+"AVg",AVERAGE(health[Billing Amount]))
+
+
+// 44. Total Billing for hospital
+EVALUATE
+ADDCOLUMNS(VALUES(health[Hospital]),
+"Total",SUM(health[Billing Amount]))
